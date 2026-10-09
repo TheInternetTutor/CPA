@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cash App Trading Analytics</title>
+  <link rel="stylesheet" href="dashboard.css">
+  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <div class="eyebrow">Cash App · Trading Analytics</div>
+        <h1>Trading Performance</h1>
+        <div class="subtitle">FIFO-realized performance · precomputed analytics · presentation layer only</div>
+      </div>
+      <div class="meta"><div>Analysis period</div><strong id="analysisPeriod">Loading…</strong><div style="margin-top:6px">Method: FIFO</div></div>
+    </header>
+    <section class="kpi-grid" aria-label="Trading performance summary">
+      <article class="card"><div class="label">Realized P&amp;L</div><div id="realizedPnl" class="value positive">—</div></article>
+      <article class="card"><div class="label">Return / Matched Cost</div><div id="returnOnCost" class="value positive">—</div></article>
+      <article class="card"><div class="label">Win Rate</div><div id="winRate" class="value info">—</div></article>
+      <article class="card"><div class="label">Profit Factor</div><div id="profitFactor" class="value info">—</div></article>
+      <article class="card"><div class="label">Matched Cost</div><div id="matchedCost" class="value">—</div></article>
+      <article class="card"><div class="label">Max Drawdown</div><div id="drawdown" class="value negative">—</div></article>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Monthly Realized Performance</div><div class="panel-note"><span id="fragmentCount">—</span> FIFO fragments · <span id="winLoss">—</span> wins/losses</div></div>
+      <div id="monthlyPerformanceChart"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Cumulative Realized P&amp;L</div><div class="panel-note">Daily FIFO-realized result · excludes unrealized P&amp;L</div></div>
+      <div id="cumulativeRealizedPnlChart"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Daily P&amp;L Distribution</div><div class="panel-note">Active sell days · zero-P&amp;L calendar days excluded</div></div>
+      <div id="dailyPnlDistributionChart"></div>
+      <div class="inventory-note">Shows the distribution of realized FIFO P&amp;L across days with completed sales; the shape highlights consistency and tail outcomes.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Monthly Trade Quality</div><div class="panel-note">Win rate and average FIFO-fragment P&amp;L</div></div>
+      <div id="monthlyTradeQualityChart"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Monthly Profitability Quality</div><div class="panel-note">Profit factor and return on matched cost</div></div>
+      <div id="monthlyProfitabilityQualityChart"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Monthly Trade Activity</div><div class="panel-note">Winning and losing FIFO fragments by month</div></div>
+      <div id="monthlyTradeActivityChart"></div>
+      <div class="inventory-note">Shows how trading activity changed over time and whether higher activity was accompanied by a larger share of winning or losing fragments.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Weekday Performance</div><div class="panel-note">Realized FIFO P&amp;L and fragment activity by sell day</div></div>
+      <div id="weekdayPerformanceChart"></div>
+      <div class="inventory-note">Shows whether realized results and trading activity differ systematically across the five trading weekdays.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Fragment P&amp;L Distribution</div><div class="panel-note">470 realized FIFO fragments · outcome-size distribution</div></div>
+      <div id="fragmentPnlDistributionChart"></div>
+      <div class="inventory-note">Highlights the typical size of realized wins and losses and the tails that drive aggregate results.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Yearly Performance</div><div class="panel-note">Realized P&amp;L and return on matched cost</div></div>
+      <div id="yearlyPerformanceChart"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Symbol Attribution</div><div class="panel-note">Top realized contributors and detractors · FIFO basis</div></div>
+      <div id="symbolAttributionChart"></div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Gross Profit Concentration</div><div class="panel-note">Symbol contribution to total positive realized FIFO P&amp;L</div></div>
+      <div id="grossProfitParetoChart"></div>
+      <div class="inventory-note">Symbols are ranked by gross realized profit. The cumulative line shows how quickly total positive P&amp;L is concentrated among the strongest contributors.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Drawdown &amp; Recovery</div><div class="panel-note">Monthly realized P&amp;L · drawdown from cumulative realized peak</div></div>
+      <div class="behavior-card">
+        <div class="behavior-title">Realized Drawdown Over Time</div>
+        <div id="monthlyDrawdownChart"></div>
+      </div>
+      <div class="inventory-note">Drawdown is calculated from cumulative realized FIFO P&amp;L. It does not include unrealized P&amp;L or current open positions.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Risk &amp; Behavior</div><div class="panel-note">Realized FIFO behavior · consistency · drawdown · holding periods</div></div>
+      <div class="risk-grid">
+        <article class="risk-card positive"><div class="label">Profitable Months</div><div id="profitableMonths" class="value">—</div><div id="profitableMonthsDetail" class="detail">—</div></article>
+        <article class="risk-card negative"><div class="label">Maximum Drawdown</div><div id="riskDrawdown" class="value">—</div><div id="riskDrawdownDetail" class="detail">—</div></article>
+        <article class="risk-card warning"><div class="label">Longest Losing Streak</div><div id="losingStreak" class="value">—</div><div class="detail">FIFO fragments</div></article>
+        <article class="risk-card positive"><div class="label">Longest Winning Streak</div><div id="winningStreak" class="value">—</div><div class="detail">FIFO fragments</div></article>
+      </div>
+      <div class="behavior-strip">
+        <article class="behavior-card">
+          <div class="behavior-title">Holding Period — Winners vs. Losers</div>
+          <div class="behavior-bars">
+            <div class="behavior-row"><span>Winners</span><div class="behavior-track"><div id="winnerHoldBar" class="behavior-fill win"></div></div><span id="winnerHold" class="behavior-value">—</span></div>
+            <div class="behavior-row"><span>Losers</span><div class="behavior-track"><div id="loserHoldBar" class="behavior-fill loss"></div></div><span id="loserHold" class="behavior-value">—</span></div>
+          </div>
+        </article>
+        <article class="behavior-card">
+          <div class="behavior-title">Drawdown Recovery</div>
+          <div class="behavior-bars">
+            <div class="behavior-row"><span>Longest</span><div class="behavior-track"><div id="longestRecoveryBar" class="behavior-fill info"></div></div><span id="longestRecovery" class="behavior-value">—</span></div>
+            <div class="behavior-row"><span>Average</span><div class="behavior-track"><div id="averageRecoveryBar" class="behavior-fill info"></div></div><span id="averageRecovery" class="behavior-value">—</span></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Current Open Inventory</div><div class="panel-note"><span id="openInventoryAsOf">As of —</span> · FIFO cost basis only</div></div>
+      <div class="inventory-grid">
+        <article class="risk-card info"><div class="label">Open Lots</div><div id="openLots" class="value">—</div><div class="detail">remaining FIFO lots</div></article>
+        <article class="risk-card info"><div class="label">Open Symbols</div><div id="openSymbols" class="value">—</div><div class="detail">securities with inventory</div></article>
+        <article class="risk-card"><div class="label">FIFO Cost Basis</div><div id="openCostBasis" class="value">—</div><div class="detail">remaining open inventory</div></article>
+        <article class="risk-card warning"><div class="label">Median Lot Age</div><div id="openMedianAge" class="value">—</div><div class="detail">oldest: <span id="openOldestAge">—</span></div></article>
+        <article class="risk-card warning"><div class="label">Top 5 Concentration</div><div id="openConcentration" class="value">—</div><div class="detail">share of open cost basis</div></article>
+      </div>
+      <div class="inventory-charts">
+        <article class="behavior-card">
+          <div class="behavior-title">Open Lot Age Distribution</div>
+          <div id="openInventoryAgeChart"></div>
+        </article>
+        <article class="behavior-card">
+          <div class="behavior-title">Largest Open Positions by FIFO Cost Basis</div>
+          <div id="openInventoryConcentrationChart"></div>
+        </article>
+      </div>
+      <div class="inventory-note">Market value and unrealized P&amp;L are intentionally omitted because reliable marks are not part of the source dataset.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Capital Deployment &amp; Velocity</div><div class="panel-note">Realized FIFO recycling relative to external contributions</div></div>
+      <div class="inventory-grid capital-grid">
+        <article class="risk-card info"><div class="label">Gross Contributions</div><div id="capitalGrossInflows" class="value">—</div><div class="detail">external inflows</div></article>
+        <article class="risk-card"><div class="label">Matched FIFO Cost</div><div id="capitalMatchedCost" class="value">—</div><div class="detail">capital deployed into matched lots</div></article>
+        <article class="risk-card positive"><div class="label">Deployment Multiple</div><div id="capitalDeploymentMultiple" class="value">—</div><div class="detail">vs. gross contributions</div></article>
+        <article class="risk-card info"><div class="label">Active Sell Days</div><div id="capitalActiveSellDays" class="value">—</div><div class="detail">days with realized sales</div></article>
+        <article class="risk-card warning"><div class="label">vs. Net External Capital</div><div id="capitalNetCapitalMultiple" class="value">—</div><div class="detail">diagnostic; withdrawals can distort</div></article>
+      </div>
+      <div class="behavior-card">
+        <div class="behavior-title">Annual Capital Recycling</div>
+        <div id="capitalVelocityChart"></div>
+      </div>
+      <div class="inventory-note">Deployment multiple = matched FIFO cost ÷ gross external contributions. It measures capital recycling and is not standard portfolio turnover or an annualized return.</div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Exposure &amp; Concentration</div><div class="panel-note"><span id="exposureAsOf">As of —</span> · historical trading + current open inventory</div></div>
+      <div class="inventory-grid">
+        <article class="risk-card warning"><div class="label">Top 1 Historical</div><div id="historicalTop1" class="value">—</div><div class="detail">share of matched FIFO cost</div></article>
+        <article class="risk-card warning"><div class="label">Top 3 Historical</div><div id="historicalTop3" class="value">—</div><div class="detail">share of matched FIFO cost</div></article>
+        <article class="risk-card warning"><div class="label">Top 5 Historical</div><div id="historicalTop5" class="value">—</div><div class="detail">share of matched FIFO cost</div></article>
+        <article class="risk-card negative"><div class="label">Top 5 Gross Loss Share</div><div id="historicalLossShare" class="value">—</div><div class="detail">share of all gross losses</div></article>
+        <article class="risk-card info"><div class="label">Current Top 5</div><div id="currentTop5Exposure" class="value">—</div><div class="detail">share of open FIFO cost basis</div></article>
+      </div>
+      <div class="inventory-charts">
+        <article class="behavior-card">
+          <div class="behavior-title">Historical Concentration by Matched FIFO Cost</div>
+          <div id="historicalConcentrationChart"></div>
+        </article>
+        <article class="behavior-card">
+          <div class="behavior-title">Where Gross Losses Concentrated</div>
+          <div id="grossLossConcentrationChart"></div>
+        </article>
+      </div>
+      <div class="inventory-note">Historical concentration uses realized FIFO-matched cost. Current concentration uses remaining open FIFO cost basis; no market-value exposure is inferred.</div>
+    </section>
+    <section class="panel"><div class="panel-header"><div class="panel-title">Strategy Behavior</div><div class="panel-note">Descriptive synthesis of validated FIFO behavior</div></div><div class="inventory-grid"><article class="risk-card positive"><div class="label">FIFO Win Frequency</div><div id="strategyWinRate" class="value">—</div><div class="detail">matched FIFO fragments</div></article><article class="risk-card positive"><div class="label">Winner / Loser</div><div id="strategyPayoffRatio" class="value">—</div><div class="detail">average P&amp;L magnitude</div></article><article class="risk-card info"><div class="label">Median Hold</div><div id="strategyMedianHold" class="value">—</div><div class="detail">all matched fragments</div></article><article class="risk-card warning"><div class="label">Losing Hold Premium</div><div id="strategyHoldRatio" class="value">—</div><div class="detail">vs. winning average hold</div></article><article class="risk-card warning"><div class="label">Top 5 Loss Concentration</div><div id="strategyLossConcentration" class="value">—</div><div class="detail">share of gross losses</div></article></div><div class="strategy-grid-bottom"><article class="behavior-card"><div class="behavior-title">Payoff &amp; Holding Profile</div><div class="behavior-bars"><div class="behavior-row"><span>Winner ROC</span><div class="behavior-track"><div id="winnerRocBar" class="behavior-fill win"></div></div><span id="winnerRoc" class="behavior-value">—</span></div><div class="behavior-row"><span>Loser ROC</span><div class="behavior-track"><div id="loserRocBar" class="behavior-fill loss"></div></div><span id="loserRoc" class="behavior-value">—</span></div><div class="behavior-row"><span>Winner hold</span><div class="behavior-track"><div id="strategyWinnerHoldBar" class="behavior-fill info"></div></div><span id="strategyWinnerHold" class="behavior-value">—</span></div><div class="behavior-row"><span>Loser hold</span><div class="behavior-track"><div id="strategyLoserHoldBar" class="behavior-fill loss"></div></div><span id="strategyLoserHold" class="behavior-value">—</span></div></div></article><article class="behavior-card"><div class="behavior-title">Current Inventory Watchpoints</div><div class="strategy-watchlist"><div><span>Open lots</span><strong id="strategyOpenLots">—</strong></div><div><span>Open symbols</span><strong id="strategyOpenSymbols">—</strong></div><div><span>Open cost basis</span><strong id="strategyOpenCost">—</strong></div><div><span>Oldest lot</span><strong id="strategyOldestLot">—</strong></div></div><div class="inventory-note">Longer losing holds and concentrated gross losses are watchpoints, not causal diagnoses.</div></article></div></section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Fragment Return-on-Cost Distribution</div><div class="panel-note">470 realized FIFO fragments · normalized outcome distribution</div></div>
+      <div id="fragmentReturnDistributionChart"></div>
+      <div class="inventory-note">Normalizes each realized fragment by its own FIFO cost, making the consistency and asymmetry of trade-level returns visible independent of position size.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Holding Period Distribution</div><div class="panel-note">470 realized FIFO fragments · all completed holding periods</div></div>
+      <div id="holdingPeriodDistributionChart"></div>
+      <div class="inventory-note">Shows where realized FIFO fragments cluster by holding time; the distribution complements the winner/loser outcome view.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Trade Size vs. Outcome</div><div class="panel-note">Fragment cost versus realized FIFO P&amp;L</div></div>
+      <div id="tradeSizeOutcomeChart"></div>
+      <div class="inventory-note">Point position shows realized outcome relative to the capital committed to each FIFO fragment; it does not imply causation.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Outcome by Holding-Period Bucket</div><div class="panel-note">Realized FIFO P&amp;L and win rate by holding-time bucket</div></div>
+      <div id="holdingPeriodBucketOutcomeChart"></div>
+      <div class="inventory-note">Shows whether profitability and win frequency change materially as realized positions are held longer.</div>
+    </section>
+    <section class="panel">
+      <div class="panel-header"><div class="panel-title">Holding Period vs. Outcome</div><div class="panel-note">470 realized FIFO fragments · point size reflects fragment cost</div></div>
+      <div id="holdingPeriodOutcomeChart"></div>
+      <div class="inventory-note">Longer holding periods are not inherently better or worse; the chart shows how realized outcomes actually distributed across holding time.</div>
+    </section>
+    <section class="panel"><div class="panel-header"><div class="panel-title">Trade Efficiency</div><div class="panel-note">Realized FIFO fragments · no annualization inferred</div></div><div class="inventory-grid"><article class="risk-card positive"><div class="label">Return / Matched Cost</div><div id="effReturn" class="value">—</div><div class="detail">realized FIFO return</div></article><article class="risk-card info"><div class="label">Median Fragment ROC</div><div id="effMedianRoc" class="value">—</div><div class="detail">median return on cost</div></article><article class="risk-card info"><div class="label">Proceeds / Cost</div><div id="effTurnover" class="value">—</div><div class="detail">realized recycling ratio</div></article><article class="risk-card"><div class="label">Avg Fragment P&amp;L</div><div id="effAvgPnl" class="value">—</div><div class="detail">per FIFO fragment</div></article><article class="risk-card warning"><div class="label">P&amp;L / Capital-Day</div><div id="effPnlCapitalDay" class="value">—</div><div class="detail">descriptive efficiency measure</div></article></div><div class="inventory-charts"><article class="behavior-card"><div class="behavior-title">Yearly Return on Matched Cost</div><div id="efficiencyYearlyChart"></div></article><article class="behavior-card"><div class="behavior-title">Monthly Return on Matched Cost</div><div id="efficiencyMonthlyChart"></div></article></div><div class="inventory-charts"><article class="behavior-card"><div class="behavior-title">Top Symbol Efficiency</div><div id="efficiencySymbolChart"></div></article><article class="behavior-card"><div class="behavior-title">Symbol Capital vs. Realized P&amp;L</div><div id="symbolCapitalPnlChart"></div><div class="inventory-note">Point size reflects FIFO fragment count; color separates positive and negative realized P&amp;L.</div></article><article class="behavior-card"><div class="behavior-title">Holding Efficiency</div><div class="behavior-bars"><div class="behavior-row"><span>Avg hold</span><div class="behavior-track"><div id="effHoldBar" class="behavior-fill info"></div></div><span id="effAvgHold" class="behavior-value">—</span></div><div class="behavior-row"><span>Winner hold</span><div class="behavior-track"><div id="effWinnerHoldBar" class="behavior-fill win"></div></div><span id="effWinnerHold" class="behavior-value">—</span></div><div class="behavior-row"><span>Loser hold</span><div class="behavior-track"><div id="effLoserHoldBar" class="behavior-fill loss"></div></div><span id="effLoserHold" class="behavior-value">—</span></div></div><div class="inventory-note">P&amp;L/capital-day is P&amp;L divided by FIFO cost-days; it is not a standard annualized return.</div></article></div></section>
+    <div id="status" class="status"></div>
+  </main>
+  <script src="dashboard_colors.js"></script>
+  <script src="chartBuilder.js"></script>
+  <script src="dashboard_data.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>

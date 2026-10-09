@@ -1,0 +1,52 @@
+{
+  "audit": {
+    "status": "PASS",
+    "scope": "Cash App trading analytics backend reconciliation",
+    "audit_date": "2026-10-04",
+    "source": "cash_app_report.csv",
+    "source_records": 1086,
+    "completed_stock_trades": 680,
+    "buys": 464,
+    "sells": 216,
+    "fifo_matched_fragments": 470,
+    "open_lots": 50,
+    "open_symbols": 31
+  },
+  "reconciliation": {
+    "realized_pnl": 10690.5068607204,
+    "matched_cost": 205202.760128208,
+    "matched_proceeds": 215893.2669889284,
+    "return_on_matched_cost_pct": 5.20972859,
+    "wins": 406,
+    "losses": 64,
+    "win_rate_pct": 86.38297872,
+    "gross_profit": 11569.1337,
+    "gross_loss": -878.6269,
+    "profit_factor": 13.17,
+    "max_realized_drawdown": -336.6881186722,
+    "external_gross_inflows": 18222.10,
+    "external_gross_outflows": -12830.80,
+    "external_net_capital": 5391.30,
+    "open_cost_basis": 8100.01,
+    "open_quantity": 56.1843821
+  },
+  "checks": {
+    "pnl_cost_plus_proceeds_reconciles": true,
+    "fragment_counts_reconcile": true,
+    "win_loss_counts_reconcile": true,
+    "open_inventory_reconciles": true,
+    "external_capital_ledger_reconciles": true,
+    "corporate_actions_accounted_for": true,
+    "daily_time_series_reconciles_to_fragments": true,
+    "historical_concentration_reconciles": true,
+    "strategy_behavior_reconciles": true
+  },
+  "notes": [
+    "FIFO is the authoritative lot-matching method.",
+    "Corporate actions include NVDA and AVGO 10:1 splits.",
+    "Gross profit and gross loss are calculated from individual FIFO fragments, not daily net P&L.",
+    "Current open exposure is measured by FIFO cost basis because reliable historical/current marks are not part of V1.",
+    "Capital velocity is a capital-recycling measure relative to gross external contributions, not standard portfolio turnover.",
+    "No standard Sharpe ratio or true annualized portfolio return is inferred from the available data."
+  ]
+}
