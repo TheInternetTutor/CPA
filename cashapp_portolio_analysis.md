@@ -6,4 +6,9 @@
 
 ## Frontend notes:
 
+## GitHub synchronization
+- Repository: `TheInternetTutor/CPA`
+- Branch: `main`
+- To retrieve updates locally: `git pull`
+
 ---
