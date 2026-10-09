@@ -18,4 +18,9 @@
 ### After all:
 - ... we humans do not have all the time in the world.
 
+## Second cycle:
+- Sage retrieved the latest version from GitHub before making this change.
+- Keep edits small and incremental so Emilio can pull them locally and verify each cycle.
+- Preferred workflow: one step at a time, with copy-ready commands in code blocks.
+
 ---
